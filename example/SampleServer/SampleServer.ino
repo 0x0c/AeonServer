@@ -57,13 +57,20 @@ void setup(void)
 
 	page.context = &u8g;
 	server.registerPage(&page);
-	
+
 	Button *c = new Button(Point(50, 0), Point(30, 30));
 	page.listner.add(new Event(c, EventTypeKeySelect, buttonSelected));
 	c->identifier = 1;
 	c->roundRect = true;
 	c->text = "btn1";
 	page.add(c);
+
+	Switch *c2 = new Switch(Point(0, 0), Point(30, 30));
+	page.listner.add(new Event(c2, EventTypeKeySelect, switchValueChanged));
+	c2->identifier = 2;
+	c2->roundRect = true;
+	c2->text = "btn2";
+	page.add(c2);
 }
 
 void loop(void)

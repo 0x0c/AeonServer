@@ -65,8 +65,13 @@ namespace AeonServer
 				this->dataBuffer[i] = data;
 			}
 		}
-		std::string readString() {
-			return "";
+		bool readString() {
+			bool result = false;
+			char c = Serial.read();
+			if (c != '\0') {
+				result = true;
+			}
+			return result;
 		}
 		void processCommand(char comm) {
 			switch (comm) {
@@ -122,6 +127,16 @@ namespace AeonServer
 					this->page->add(list);
 					list->identifier = this->globalIdentifierCounter++;
 					Serial.print(list->identifier);
+					this->command = '\0';
+				}
+					break;
+				case 'n': {
+					page->moveToNextControl();
+					this->command = '\0';
+				}
+					break;
+				case 'p': {
+					page->moveToPreviousControl();
 					this->command = '\0';
 				}
 					break;
