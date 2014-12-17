@@ -71,6 +71,12 @@ void setup(void)
 	c2->roundRect = true;
 	c2->text = "btn2";
 	page.add(c2);
+
+	Label *l = new Label(Point(0, 0), "HelloWorld");
+	page.add(l);
+
+	Notification *n = new Notification("Title", "Body\nBody2\nBody3");
+	page.postNotification(n);
 }
 
 void loop(void)
@@ -79,7 +85,6 @@ void loop(void)
 	if (page.needToRefresh()) {
 		u8g.firstPage();
 		do {
-			u8g.drawLine(0, 0, 128, 31);
 			page.draw();
 		} while(u8g.nextPage());
 	}

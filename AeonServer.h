@@ -39,6 +39,8 @@ namespace AeonServer
 		void receive() {
 			if (Serial.available() > 0) {
 				if (this->command == '\0') {
+					stringBuffer.erase();
+					this->step = 0;
 					this->command = Serial.read();
 				}
 				else {
@@ -66,11 +68,17 @@ namespace AeonServer
 			}
 		}
 		bool readString() {
-			bool result = false;
-			char c = Serial.read();
-			if (c != '\0') {
-				result = true;
+			bool result = true;
+			while (Serial.available() > 0) {
+				char c = Serial.read();
+				if (c != '\0') {
+					result = false;
+				}
+				else {
+					stringBuffer += c;
+				}
 			}
+			
 			return result;
 		}
 		void processCommand(char comm) {
@@ -100,25 +108,41 @@ namespace AeonServer
 				}
 					break;
 				case 'l': {
-					if (Serial.available() > 1) {
-						if (this->step == 0) {
-							this->readPoints(1);
+					if (this->step == 0) {
+						this->readPoints(1);
+						this->step = 1;
+					}
+					else if (this->step == 1) {
+						if (this->readString() == false) {
+							this->step = 2;
+						}
+					}
+					else {
+						Label *label = new Label(this->pointBuffer[0], this->stringBuffer);
+						this->page->add(label);
+						label->identifier = this->globalIdentifierCounter++;
+						Serial.print(label->identifier);
+						this->command = '\0';
+					}
+				}
+					break;
+				case 'o': {
+					if (this->step == 0) {
+						//read title
+						if (this->readString() == false) {
 							this->step = 1;
 						}
-						else if (this->step == 1) {
-							if (this->readString() == false) {
-								this->step = 2;
-							}
+					}
+					else if (this->step == 1) {
+						//read body
+						if (this->readString() == false) {
+							this->step = 2;
 						}
-						else {
-							Label *label = new Label(this->pointBuffer[0], this->stringBuffer);
-							this->page->add(label);
-							label->identifier = this->globalIdentifierCounter++;
-							Serial.print(label->identifier);
-
-							this->stringBuffer = "";
-							this->command = '\0';
-						}
+					}
+					else {
+						Notification *n = new Notification("Title", "Body\nBody2\nBody3");
+						page->postNotification(n);
+						this->command = '\0';
 					}
 				}
 					break;
